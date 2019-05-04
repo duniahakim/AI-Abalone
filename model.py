@@ -1,0 +1,223 @@
+
+from copy import deepcopy
+from collections import defaultdict
+import random
+
+class AbaloneMDP(object):
+    def __init__(self, max_num_rounds):
+        self.max_num_rounds = max_num_rounds # maximum number of allowed rounds in game (game ends if exceeded)
+        self.black = 1 # integer to represent a black marble
+        self.white = -1 #integer to represent a white marblee
+        self.empty = 0 #integer to represent an empty space on board
+        self.directions = [(+1, -1, 0), (+1,0,-1), (0, +1, -1), (-1, +1, 0), (-1, 0, +1), (0, -1, +1)] # possible directions from every space on board (x,y,z)
+
+    def startState(self):
+        num_round = 0
+        player = self.black
+        num_black_Off_grid = 0
+        num_white_Off_grid = 0
+
+        # a dictionary with position of space on board as key (a tuple (x,y,z) representing the position on each of the x, y, and z-axieses respectively) and with integer representing the occupation of that space (1 for black (self.black), -1 for white (self.white), and 0 for empty (self.empty))
+        dict_pos = {}
+        for x in range(-4, 5):
+            for y in range(-4, 5):
+                z = 0 - x - y
+                if z not in range(-4, 5):
+                    continue
+                if (z == -4 or z == -3) or (z == -2 and y in range(0, 3)):
+                    dict_pos[(x,y,z)] = self.white
+                elif (z == 4 or z == 3) or (z == 2 and y in range(-2, 1)):
+                    dict_pos[(x,y,z)] = self.black
+                else:
+                    dict_pos[(x, y, z)] = self.empty
+        print(len(dict_pos))
+        return (dict_pos, num_black_Off_grid, num_white_Off_grid, player, num_round)
+
+    def player(self, state):
+        dict_pos, num_black_Off_grid, num_white_Off_grid, player, num_round = state
+        return player
+
+    def isEnd(self, state):
+        dict_pos, num_black_Off_grid, num_white_Off_grid, player, num_round = state
+        if num_white_Off_grid == 6 or num_black_Off_grid == 6 or num_round > self.max_num_rounds:
+            return True
+        return False
+
+    def actions(self, state):
+        possible_actions = []
+        dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
+        for key, val in dict_pos.items():
+            if val == player:
+                for direction in self.directions:
+                    possible_actions.append((key, direction))
+        return possible_actions
+
+    def addition(self, marble, direction, scale = 1):
+        xm, ym, zm = marble
+        xd, yd, zd = direction
+        return (xm + scale * xd, ym + scale * yd, zm + scale * zd)
+
+    def push(self, state, marble, direction):
+        dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
+        possible = True
+        pushOff = False
+        numOwn = 1 # number of current player's marbles in attempted push
+        numOpp = 0 # number of opponent's marbles in attempted push
+
+
+        currPos = marble
+        #counting marbles on the player's side
+        while(True):
+            if numOwn > 3:
+                return None
+            nextPos = self.addition(currPos, direction)
+            if nextPos in dict_pos and dict_pos[nextPos] == player:
+                numOwn += 1
+                currPos = nextPos
+            else:
+                break
+
+        #counting marbles on the opponent's side
+        while(True):
+            nextPos = self.addition(currPos, direction)
+            if numOpp > numOwn:
+                return None
+            if nextPos not in dict_pos:
+                currPos = nextPos
+                pushOff = True
+                break
+                #encountered the boundary
+
+            if dict_pos[nextPos] == player:
+                return None
+            elif dict_pos[nextPos] == self.empty:
+                currPos = nextPos
+                break
+            else:
+                numOpp += 1
+                currPos = nextPos
+
+        newDict = deepcopy(dict_pos)
+        new_num_black_Off_grid = num_black_Off_grid
+        new_num_white_Off_grid = num_white_Off_grid
+        new_numRound = numRound + 1
+
+        while (numOpp != 0):
+           if pushOff:
+               if player == self.black:
+                   new_num_white_Off_grid += 1
+               elif player == self.white:
+                   new_num_black_Off_grid += 1
+               pushOff = False
+           else:
+               newDict[currPos] = -player
+           currPos = self.addition(currPos, direction, scale = -1)
+           numOpp -= 1
+
+        while (numOwn != 0):
+           if pushOff:
+               if player == self.black:
+                   new_num_black_Off_grid += 1
+               elif player == self.white:
+                   new_num_white_Off_grid += 1
+               pushOff = False
+           else:
+               newDict[currPos] = player
+           currPos = self.addition(currPos, direction, scale = -1)
+           numOwn -= 1
+
+        newDict[currPos] = self.empty
+
+
+        return (newDict, new_num_black_Off_grid, new_num_white_Off_grid, -player, new_numRound)
+
+    def succ(self, state, action):
+        dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
+        marble, direction = action
+        newState = self.push(state, marble, direction)
+        if newState is None:
+            return None
+        _, new_black_Off, new_white_Off, _, _ = newState
+
+        if self.isEnd(newState):
+            if new_black_Off > new_white_Off:
+                return newState
+            elif new_black_Off < new_white_Off:
+                return newState
+        return newState
+
+    def utility(self, state):
+        dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
+        assert self.isEnd(state)
+        if num_black_Off_grid >= 6:
+            return -1 * float('inf')
+        if num_white_Off_grid >= 6:
+            return float('inf')
+        return 0
+
+    def visualization(self, d):
+
+    	def getValue(i):
+    		if i < 0:
+    			return "W"
+    		elif i > 0:
+    			return "B"
+    		else:
+    			return "O"
+
+    	rows = []
+    	for z in range(-4, 5):
+    		row = []
+    		for y in range(4, -5, -1):
+    			x = 0-z-y
+    			if x in range(-4,5):
+    				row.append(getValue(d[(x,y,z)]))
+    		rows.append(row)
+
+    	for row in rows:
+    		result = ""
+    		makeup = 9 - len(row)
+    		for i in range(makeup):
+    			result += " "
+    		result += " ".join(row)
+    		print result
+
+
+def humanPolicy(game, state):
+    while True:
+        action = input('Input action:')
+        if action in game.actions(state):
+            return action
+
+def minimaxPolicy(game, state):
+    def recurse(state):
+        if game.isEnd(state):
+            return (game.utility(state), 'none')
+        choices = []
+        for action in game.actions(state):
+            succ = game.succ(state, action)
+            if succ is not None:
+                choices.append((recurse(succ)[0], action))
+        if game.player(state) == game.black:
+            return max(choices)
+        elif game.player(state) == game.white:
+            return min(choices)
+    value, action = recurse(state)
+    print('minimax sats action = {}, value = {}'. format(action, value))
+    return action
+
+
+game = AbaloneMDP(100)
+policies = {game.black: humanPolicy, game.white: minimaxPolicy}
+state = game.startState()
+dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
+game.visualization(dict_pos)
+
+while not game.isEnd(state):
+    print('='*20)
+    player = game.player(state)
+    policy = policies[player]
+    action = policy(game, state)
+    state = game.succ(state, action)
+    dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
+    game.visualization(dict_pos)
