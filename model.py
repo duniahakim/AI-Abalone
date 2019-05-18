@@ -10,6 +10,30 @@ class AbaloneGame(object):
         self.empty = 0 #integer to represent an empty space on board
         self.directions = [(+1, -1, 0), (+1,0,-1), (0, +1, -1), (-1, +1, 0), (-1, 0, +1), (0, -1, +1)] # possible directions from every space on board (x,y,z)
 
+        # self.printed2 = False
+        # self.printed1 = False
+        # self.printed0 = False
+    def eval(self, state):
+        w_num_black_Off_grid = 0
+        w_num_white_Off_grid = 0
+        w_num_black_on_edge = -100
+        w_num_white_on_edge = 100
+
+        dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
+        num_black_on_edge = 0
+        num_white_on_edge = 0
+
+        for pos in dict_pos:
+            if 4 in pos or -4 in pos:
+                if dict_pos[pos] == self.black:
+                    num_black_on_edge += 1
+                elif dict_pos[pos] == self.white:
+                    num_white_on_edge += 1
+        estimate = (w_num_black_Off_grid)**2 * num_black_Off_grid + (w_num_white_Off_grid)**2 * num_white_Off_grid \
+        + w_num_black_on_edge * num_black_on_edge + w_num_white_on_edge * num_white_on_edge
+        print(estimate)
+        return estimate
+
     def startState(self):
         num_round = 0
         player = self.black
@@ -29,7 +53,6 @@ class AbaloneGame(object):
                     dict_pos[(x,y,z)] = self.black
                 else:
                     dict_pos[(x, y, z)] = self.empty
-        print(len(dict_pos))
         return (dict_pos, num_black_Off_grid, num_white_Off_grid, player, num_round)
 
     def player(self, state):

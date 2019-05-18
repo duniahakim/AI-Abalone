@@ -63,7 +63,9 @@ def AlphaBeta(game, state):
     choices = []
     for action in game.actions(state):
         succGameState = game.succ(state, action)
-        succValAction = (recurse(game, state, alpha, beta), action)
+        if succGameState is None:
+            continue
+        succValAction = (recurse(game, succGameState, alpha, beta), action)
         if alpha is None or alpha < succValAction[0]:
             alpha = succValAction[0]
         choices.append(succValAction)
