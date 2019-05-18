@@ -25,7 +25,7 @@ def minimaxPolicy(game, state):
 
 
 game = model.AbaloneGame(100)
-policies = {game.black: humanPolicy, game.white: minimaxPolicy}
+policies = {game.black: minimaxPolicy, game.white: humanPolicy}
 state = game.startState()
 dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
 game.visualization(dict_pos)
