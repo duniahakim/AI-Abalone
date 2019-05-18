@@ -28,7 +28,24 @@ def AlphaBeta(game, state):
         if game.isEnd(state):
             return game.utility(state)
         if d == 0:
-            return game.eval(state)
+            if game.player(state) == game.black:
+                w = {}
+                w['w_num_black_Off_grid'] = -200
+                w['w_num_white_Off_grid'] = 200
+                w['w_num_black_on_edge'] = -20
+                w['w_num_white_on_edge'] = 20
+                w['w_black_average_pos'] = -100
+                w['w_white_average_pos'] = 100
+                return game.eval(state, w)
+            else:
+                w = {}
+                w['w_num_black_Off_grid'] = -200
+                w['w_num_white_Off_grid'] = 200
+                w['w_num_black_on_edge'] = 0
+                w['w_num_white_on_edge'] = 0
+                w['w_black_average_pos'] = -100
+                w['w_white_average_pos'] = 100
+                return game.eval(state, w)
         if game.player(state) == game.black:
             newAlpha = alpha
             choices = []

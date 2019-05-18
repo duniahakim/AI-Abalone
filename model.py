@@ -13,24 +13,48 @@ class AbaloneGame(object):
         # self.printed2 = False
         # self.printed1 = False
         # self.printed0 = False
-    def eval(self, state):
-        w_num_black_Off_grid = 0
-        w_num_white_Off_grid = 0
-        w_num_black_on_edge = -100
-        w_num_white_on_edge = 100
+    def eval(self, state, w):
+        w_num_black_Off_grid = w['w_num_black_Off_grid']
+        w_num_white_Off_grid = w['w_num_white_Off_grid']
+        w_num_black_on_edge = w['w_num_black_on_edge']
+        w_num_white_on_edge = w['w_num_white_on_edge']
+        w_black_average_pos = w['w_black_average_pos']
+        w_white_average_pos = w['w_white_average_pos']
+
+        w_num_black_Off_grid = -200
+        w_num_white_Off_grid = 200
+        w_num_black_on_edge = -20
+        w_num_white_on_edge = 20
+        w_black_average_pos = -100
+        w_white_average_pos = 100
 
         dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
+        black_on_grid = 14-num_black_Off_grid
+        white_on_grid = 14-num_white_Off_grid
         num_black_on_edge = 0
+        black_average_pos = 0
         num_white_on_edge = 0
+        white_average_pos = 0
 
         for pos in dict_pos:
-            if 4 in pos or -4 in pos:
-                if dict_pos[pos] == self.black:
+            if dict_pos[pos] == self.black:
+                black_average_pos += sum([abs(i) for i in pos])
+                if 4 in pos or -4 in pos:
                     num_black_on_edge += 1
-                elif dict_pos[pos] == self.white:
+            elif dict_pos[pos] == self.white:
+                white_average_pos += sum([abs(i) for i in pos])
+                if 4 in pos or -4 in pos:
                     num_white_on_edge += 1
-        estimate = (w_num_black_Off_grid)**2 * num_black_Off_grid + (w_num_white_Off_grid)**2 * num_white_Off_grid \
-        + w_num_black_on_edge * num_black_on_edge + w_num_white_on_edge * num_white_on_edge
+
+        black_average_pos /= float(black_on_grid)
+        white_average_pos /= float(white_on_grid)
+
+
+
+
+        estimate = w_num_black_Off_grid * (num_black_Off_grid)**2 + w_num_white_Off_grid * (num_white_Off_grid)**2 \
+        + w_num_black_on_edge * num_black_on_edge + w_num_white_on_edge * num_white_on_edge\
+        + w_black_average_pos * black_average_pos + w_white_average_pos * white_average_pos
         print(estimate)
         return estimate
 
