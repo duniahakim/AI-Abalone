@@ -187,12 +187,11 @@ class AbaloneGame(object):
 
     def utility(self, state):
         dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
-        assert self.isEnd(state)
         if num_black_Off_grid >= 6:
             return -1 * float('inf')
         if num_white_Off_grid >= 6:
             return float('inf')
-        return 0
+        return num_white_Off_grid**2 * 20 - num_black_Off_grid**2 * 20
 
     def visualization(self, d):
 
