@@ -10,9 +10,6 @@ class AbaloneGame(object):
         self.empty = 0 #integer to represent an empty space on board
         self.directions = [(+1, -1, 0), (+1,0,-1), (0, +1, -1), (-1, +1, 0), (-1, 0, +1), (0, -1, +1)] # possible directions from every space on board (x,y,z)
 
-        # self.printed2 = False
-        # self.printed1 = False
-        # self.printed0 = False
     def eval(self, state, w):
         w_num_black_Off_grid = w['w_num_black_Off_grid']
         w_num_white_Off_grid = w['w_num_white_Off_grid']

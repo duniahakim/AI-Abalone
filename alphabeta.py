@@ -10,21 +10,6 @@ def AlphaBeta(game, state, side = 1):
 
 
     def recurse(game, state, alpha, beta, d = 1, side = 1):
-        # if not game.printed2 and d == 2:
-        #     print "depth: ", d
-        #     game.printed2 = True
-        #     game.printed1 = False
-        #     game.printed0 = False
-        # if not game.printed1 and d == 1:
-        #     print "depth: ", d
-        #     game.printed1 = True
-        #     game.printed2 = False
-        #     game.printed0 = False
-        # if not game.printed0 and d == 0:
-        #     print "depth: ", d
-        #     game.printed0 = True
-        #     game.printed1 = False
-        #     game.printed2 = False
         if game.isEnd(state):
             return side * game.utility(state)
         if d == 0:
