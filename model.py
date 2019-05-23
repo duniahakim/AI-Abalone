@@ -21,13 +21,6 @@ class AbaloneGame(object):
         w_black_average_pos = w['w_black_average_pos']
         w_white_average_pos = w['w_white_average_pos']
 
-        w_num_black_Off_grid = -200
-        w_num_white_Off_grid = 200
-        w_num_black_on_edge = -20
-        w_num_white_on_edge = 20
-        w_black_average_pos = -100
-        w_white_average_pos = 100
-
         dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
         black_on_grid = 14-num_black_Off_grid
         white_on_grid = 14-num_white_Off_grid
@@ -55,7 +48,7 @@ class AbaloneGame(object):
         estimate = w_num_black_Off_grid * (num_black_Off_grid)**2 + w_num_white_Off_grid * (num_white_Off_grid)**2 \
         + w_num_black_on_edge * num_black_on_edge + w_num_white_on_edge * num_white_on_edge\
         + w_black_average_pos * black_average_pos + w_white_average_pos * white_average_pos
-        print(estimate)
+
         return estimate
 
     def startState(self):
@@ -126,7 +119,7 @@ class AbaloneGame(object):
         #counting marbles on the opponent's side
         while(True):
             nextPos = self.addition(currPos, direction)
-            if numOpp > numOwn:
+            if numOpp >= numOwn:
                 return None
             if nextPos not in dict_pos:
                 currPos = nextPos
