@@ -39,9 +39,6 @@ class AbaloneGame(object):
         black_average_pos /= float(black_on_grid)
         white_average_pos /= float(white_on_grid)
 
-
-
-
         estimate = w_num_black_Off_grid * (num_black_Off_grid)**2 + w_num_white_Off_grid * (num_white_Off_grid)**2 \
         + w_num_black_on_edge * num_black_on_edge + w_num_white_on_edge * num_white_on_edge\
         + w_black_average_pos * black_average_pos + w_white_average_pos * white_average_pos
@@ -163,7 +160,6 @@ class AbaloneGame(object):
            numOwn -= 1
 
         newDict[currPos] = self.empty
-
 
         return (newDict, new_num_black_Off_grid, new_num_white_Off_grid, -player, new_numRound)
 
