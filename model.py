@@ -13,6 +13,42 @@ class AbaloneGame(object):
         # self.printed2 = False
         # self.printed1 = False
         # self.printed0 = False
+    def features(self, state):
+        dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
+
+        dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
+        black_on_grid = 14 - num_black_Off_grid
+        white_on_grid = 14 - num_white_Off_grid
+        num_black_on_edge = 0
+        black_average_pos = 0
+        num_white_on_edge = 0
+        white_average_pos = 0
+
+        for pos in dict_pos:
+            if dict_pos[pos] == self.black:
+                black_average_pos += sum([abs(i) for i in pos])
+                if 4 in pos or -4 in pos:
+                    num_black_on_edge += 1
+            elif dict_pos[pos] == self.white:
+                white_average_pos += sum([abs(i) for i in pos])
+                if 4 in pos or -4 in pos:
+                    num_white_on_edge += 1
+
+        black_average_pos /= float(black_on_grid)
+        white_average_pos /= float(white_on_grid)
+
+        f = {
+            "w_num_black_Off_grid": num_black_Off_grid,
+            'w_num_white_Off_grid': num_white_Off_grid,
+            'w_num_black_on_edge': num_black_on_edge,
+            'w_num_white_on_edge': num_white_on_edge,
+            'w_black_average_pos': black_average_pos,
+            'w_white_average_pos': white_average_pos
+        }
+
+        return f
+
+
     def eval(self, state, w):
         w_num_black_Off_grid = w['w_num_black_Off_grid']
         w_num_white_Off_grid = w['w_num_white_Off_grid']
@@ -190,7 +226,6 @@ class AbaloneGame(object):
         return num_white_Off_grid**2 * 20 - num_black_Off_grid**2 * 20
 
     def visualization(self, d):
-
     	def getValue(i):
     		if i < 0:
     			return "W"
