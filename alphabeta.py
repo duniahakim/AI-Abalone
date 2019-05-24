@@ -21,6 +21,11 @@ def AlphaBeta(game, state, side = 1):
                 w['w_num_white_on_edge'] = 20
                 w['w_black_average_pos'] = -50
                 w['w_white_average_pos'] = 50
+                w['w_black_coherence'] = 3
+                w['w_white_coherence'] = -3
+                w['w_black_break'] = 10
+                w['w_white_break'] = -10
+
                 return game.eval(state, w)
             else:
                 w = {}
@@ -30,6 +35,11 @@ def AlphaBeta(game, state, side = 1):
                 w['w_num_white_on_edge'] = -200
                 w['w_black_average_pos'] = 100
                 w['w_white_average_pos'] = -100
+                w['w_black_coherence'] = -3
+                w['w_white_coherence'] = 3
+                w['w_black_break'] = -20
+                w['w_white_break'] = 20
+
                 return game.eval(state, w)
         if game.player(state) == side:
             newAlpha = alpha

@@ -2,6 +2,7 @@
 from copy import deepcopy
 from collections import defaultdict
 
+
 class AbaloneGame(object):
     def __init__(self, max_num_rounds):
         self.max_num_rounds = max_num_rounds # maximum number of allowed rounds in game (game ends if exceeded)
@@ -17,31 +18,79 @@ class AbaloneGame(object):
         w_num_white_on_edge = w['w_num_white_on_edge']
         w_black_average_pos = w['w_black_average_pos']
         w_white_average_pos = w['w_white_average_pos']
+        w_black_coherence = w['w_black_coherence']
+        w_white_coherence = w['w_white_coherence']
+        w_black_break = w['w_black_break']
+        w_white_break = w['w_white_break']
 
         dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
+
         black_on_grid = 14-num_black_Off_grid
         white_on_grid = 14-num_white_Off_grid
         num_black_on_edge = 0
         black_average_pos = 0
         num_white_on_edge = 0
         white_average_pos = 0
+        black_coherence = 0
+        white_coherence = 0
+        BONUS_FOR_3_CONSECUTIVE = 10
+        black_break = 0
+        white_break = 0
 
         for pos in dict_pos:
             if dict_pos[pos] == self.black:
                 black_average_pos += sum([abs(i) for i in pos])
                 if 4 in pos or -4 in pos:
                     num_black_on_edge += 1
+
+                for direction in self.directions:
+                    nextPos = self.addition(pos, direction)
+                    if nextPos not in dict_pos:
+                        continue
+
+                    #coherence
+                    if dict_pos[nextPos] == self.black:
+                        black_coherence += 1
+                        nextNextPos = self.addition(nextPos, direction)
+                        if nextNextPos in dict_pos and dict_pos[nextNextPos] == self.black:
+                            black_coherence += BONUS_FOR_3_CONSECUTIVE
+
+                    #formation break
+                    elif dict_pos[nextPos] == self.white:
+                        black_break += 1
             elif dict_pos[pos] == self.white:
                 white_average_pos += sum([abs(i) for i in pos])
                 if 4 in pos or -4 in pos:
                     num_white_on_edge += 1
+
+                    #single marble capture danger
+
+
+                for direction in self.directions:
+                    nextPos = self.addition(pos, direction)
+                    if nextPos not in dict_pos:
+                        continue
+
+                    #coherence
+                    if dict_pos[nextPos] == self.white:
+                        white_coherence += 1
+                        nextNextPos = self.addition(nextPos, direction)
+                        if nextNextPos in dict_pos and dict_pos[nextNextPos] == self.white:
+                            white_coherence += BONUS_FOR_3_CONSECUTIVE
+
+                    #formation break
+                    elif dict_pos[nextPos] == self.black:
+                        white_break += 1
+
 
         black_average_pos /= float(black_on_grid)
         white_average_pos /= float(white_on_grid)
 
         estimate = w_num_black_Off_grid * (num_black_Off_grid)**2 + w_num_white_Off_grid * (num_white_Off_grid)**2 \
         + w_num_black_on_edge * num_black_on_edge + w_num_white_on_edge * num_white_on_edge\
-        + w_black_average_pos * black_average_pos + w_white_average_pos * white_average_pos
+        + w_black_average_pos * black_average_pos + w_white_average_pos * white_average_pos\
+        + w_black_coherence * black_coherence + w_white_coherence * white_coherence\
+        + w_black_break * black_break + w_white_break * white_break
 
         return estimate
 
@@ -90,15 +139,14 @@ class AbaloneGame(object):
         xd, yd, zd = direction
         return (xm + scale * xd, ym + scale * yd, zm + scale * zd)
 
-    def push(self, state, marble, direction):
+    def push(self, state, marble_pos, direction):
         dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
-        possible = True
         pushOff = False
         numOwn = 1 # number of current player's marbles in attempted push
         numOpp = 0 # number of opponent's marbles in attempted push
 
 
-        currPos = marble
+        currPos = marble_pos
         #counting marbles on the player's side
         while(True):
             if numOwn > 3:
@@ -165,8 +213,8 @@ class AbaloneGame(object):
 
     def succ(self, state, action):
         dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
-        marble, direction = action
-        newState = self.push(state, marble, direction)
+        marble_pos, direction = action
+        newState = self.push(state, marble_pos, direction)
         if newState is None:
             return None
         _, new_black_Off, new_white_Off, _, _ = newState
