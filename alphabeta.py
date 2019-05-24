@@ -15,30 +15,29 @@ def AlphaBeta(game, state, side = 1):
         if d == 0:
             if side == game.black:
                 w = {}
-                w['w_num_black_Off_grid'] = -200
-                w['w_num_white_Off_grid'] = 200
-                w['w_num_black_on_edge'] = -20
-                w['w_num_white_on_edge'] = 20
-                w['w_black_average_pos'] = -50
-                w['w_white_average_pos'] = 50
-                w['w_black_coherence'] = 3
-                w['w_white_coherence'] = -3
-                w['w_black_break'] = 10
-                w['w_white_break'] = -10
+                w['num_black_Off_grid'] = -200
+                w['num_white_Off_grid'] = 200
+                w['num_black_on_edge'] = -20
+                w['num_white_on_edge'] = 20
+                w['black_average_pos'] = -50
+                w['white_average_pos'] = 50
+                w['black_coherence'] = 3
+                w['white_coherence'] = -3
+                w['black_break'] = 10
+                w['white_break'] = -10
 
                 return game.eval(state, w)
             else:
                 w = {}
-                w['w_num_black_Off_grid'] = 100
-                w['w_num_white_Off_grid'] = -100
-                w['w_num_black_on_edge'] = 300
-                w['w_num_white_on_edge'] = -200
-                w['w_black_average_pos'] = 100
-                w['w_white_average_pos'] = -100
-                w['w_black_coherence'] = -3
-                w['w_white_coherence'] = 3
-                w['w_black_break'] = -20
-                w['w_white_break'] = 20
+                w['num_white_Off_grid'] = -100
+                w['num_black_on_edge'] = 300
+                w['num_white_on_edge'] = -200
+                w['black_average_pos'] = 100
+                w['white_average_pos'] = -100
+                w['black_coherence'] = -3
+                w['white_coherence'] = 3
+                w['black_break'] = -20
+                w['white_break'] = 20
 
                 return game.eval(state, w)
         if game.player(state) == side:

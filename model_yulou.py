@@ -11,7 +11,59 @@ class AbaloneGame(object):
         self.empty = 0 #integer to represent an empty space on board
         self.directions = [(+1, -1, 0), (+1,0,-1), (0, +1, -1), (-1, +1, 0), (-1, 0, +1), (0, -1, +1)] # possible directions from every space on board (x,y,z)
 
+<<<<<<< HEAD
+        # self.printed2 = False
+        # self.printed1 = False
+        # self.printed0 = False
     def features(self, state):
+        dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
+
+        dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
+        black_on_grid = 14 - num_black_Off_grid
+        white_on_grid = 14 - num_white_Off_grid
+        num_black_on_edge = 0
+        black_average_pos = 0
+        num_white_on_edge = 0
+        white_average_pos = 0
+
+        for pos in dict_pos:
+            if dict_pos[pos] == self.black:
+                black_average_pos += sum([abs(i) for i in pos])
+                if 4 in pos or -4 in pos:
+                    num_black_on_edge += 1
+            elif dict_pos[pos] == self.white:
+                white_average_pos += sum([abs(i) for i in pos])
+                if 4 in pos or -4 in pos:
+                    num_white_on_edge += 1
+
+        black_average_pos /= float(black_on_grid)
+        white_average_pos /= float(white_on_grid)
+
+        f = {
+            "w_num_black_Off_grid": num_black_Off_grid,
+            'w_num_white_Off_grid': num_white_Off_grid,
+            'w_num_black_on_edge': num_black_on_edge,
+            'w_num_white_on_edge': num_white_on_edge,
+            'w_black_average_pos': black_average_pos,
+            'w_white_average_pos': white_average_pos
+        }
+
+        return f
+
+
+=======
+>>>>>>> b326fecf5e47140d735e5f1351773e220535a5d3
+    def eval(self, state, w):
+        w_num_black_Off_grid = w['w_num_black_Off_grid']
+        w_num_white_Off_grid = w['w_num_white_Off_grid']
+        w_num_black_on_edge = w['w_num_black_on_edge']
+        w_num_white_on_edge = w['w_num_white_on_edge']
+        w_black_average_pos = w['w_black_average_pos']
+        w_white_average_pos = w['w_white_average_pos']
+        w_black_coherence = w['w_black_coherence']
+        w_white_coherence = w['w_white_coherence']
+        w_black_break = w['w_black_break']
+        w_white_break = w['w_white_break']
 
         dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
 
@@ -23,7 +75,7 @@ class AbaloneGame(object):
         white_average_pos = 0
         black_coherence = 0
         white_coherence = 0
-        BONUS_FOR_3_CONSECUTIVE = 0
+        BONUS_FOR_3_CONSECUTIVE = 10
         black_break = 0
         white_break = 0
 
@@ -76,107 +128,11 @@ class AbaloneGame(object):
         black_average_pos /= float(black_on_grid)
         white_average_pos /= float(white_on_grid)
 
-        f = {
-            "num_black_Off_grid": num_black_Off_grid ** 2,
-            'num_white_Off_grid': num_white_Off_grid ** 2,
-            'num_black_on_edge': num_black_on_edge,
-            'num_white_on_edge': num_white_on_edge,
-            'black_average_pos': black_average_pos,
-            'white_average_pos': white_average_pos,
-            'black_coherence': black_coherence,
-            'white_coherence': white_coherence,
-            'black_break': black_break,
-            'white_break': white_break
-        }
-
-        return f
-
-    def eval(self, state, w):
-        features = self.features(state)
-        evaluation = 0.0
-        for key in w:
-            if key in features:
-                evaluation += w[key] * features[key]
-        return evaluation
-        # w_num_black_Off_grid = w['w_num_black_Off_grid']
-        # w_num_white_Off_grid = w['w_num_white_Off_grid']
-        # w_num_black_on_edge = w['w_num_black_on_edge']
-        # w_num_white_on_edge = w['w_num_white_on_edge']
-        # w_black_average_pos = w['w_black_average_pos']
-        # w_white_average_pos = w['w_white_average_pos']
-        # w_black_coherence = w['w_black_coherence']
-        # w_white_coherence = w['w_white_coherence']
-        # w_black_break = w['w_black_break']
-        # w_white_break = w['w_white_break']
-        #
-        # dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
-        #
-        # black_on_grid = 14-num_black_Off_grid
-        # white_on_grid = 14-num_white_Off_grid
-        # num_black_on_edge = 0
-        # black_average_pos = 0
-        # num_white_on_edge = 0
-        # white_average_pos = 0
-        # black_coherence = 0
-        # white_coherence = 0
-        # BONUS_FOR_3_CONSECUTIVE = 10
-        # black_break = 0
-        # white_break = 0
-        #
-        # for pos in dict_pos:
-        #     if dict_pos[pos] == self.black:
-        #         black_average_pos += sum([abs(i) for i in pos])
-        #         if 4 in pos or -4 in pos:
-        #             num_black_on_edge += 1
-        #
-        #         for direction in self.directions:
-        #             nextPos = self.addition(pos, direction)
-        #             if nextPos not in dict_pos:
-        #                 continue
-        #
-        #             #coherence
-        #             if dict_pos[nextPos] == self.black:
-        #                 black_coherence += 1
-        #                 nextNextPos = self.addition(nextPos, direction)
-        #                 if nextNextPos in dict_pos and dict_pos[nextNextPos] == self.black:
-        #                     black_coherence += BONUS_FOR_3_CONSECUTIVE
-        #
-        #             #formation break
-        #             elif dict_pos[nextPos] == self.white:
-        #                 black_break += 1
-        #     elif dict_pos[pos] == self.white:
-        #         white_average_pos += sum([abs(i) for i in pos])
-        #         if 4 in pos or -4 in pos:
-        #             num_white_on_edge += 1
-        #
-        #             #single marble capture danger
-        #
-        #
-        #         for direction in self.directions:
-        #             nextPos = self.addition(pos, direction)
-        #             if nextPos not in dict_pos:
-        #                 continue
-        #
-        #             #coherence
-        #             if dict_pos[nextPos] == self.white:
-        #                 white_coherence += 1
-        #                 nextNextPos = self.addition(nextPos, direction)
-        #                 if nextNextPos in dict_pos and dict_pos[nextNextPos] == self.white:
-        #                     white_coherence += BONUS_FOR_3_CONSECUTIVE
-        #
-        #             #formation break
-        #             elif dict_pos[nextPos] == self.black:
-        #                 white_break += 1
-        #
-        #
-        # black_average_pos /= float(black_on_grid)
-        # white_average_pos /= float(white_on_grid)
-        #
-        # estimate = w_num_black_Off_grid * (num_black_Off_grid)**2 + w_num_white_Off_grid * (num_white_Off_grid)**2 \
-        # + w_num_black_on_edge * num_black_on_edge + w_num_white_on_edge * num_white_on_edge\
-        # + w_black_average_pos * black_average_pos + w_white_average_pos * white_average_pos\
-        # + w_black_coherence * black_coherence + w_white_coherence * white_coherence\
-        # + w_black_break * black_break + w_white_break * white_break
+        estimate = w_num_black_Off_grid * (num_black_Off_grid)**2 + w_num_white_Off_grid * (num_white_Off_grid)**2 \
+        + w_num_black_on_edge * num_black_on_edge + w_num_white_on_edge * num_white_on_edge\
+        + w_black_average_pos * black_average_pos + w_white_average_pos * white_average_pos\
+        + w_black_coherence * black_coherence + w_white_coherence * white_coherence\
+        + w_black_break * black_break + w_white_break * white_break
 
         return estimate
 
@@ -314,14 +270,13 @@ class AbaloneGame(object):
 
     def utility(self, state):
         dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
-        # if num_black_Off_grid >= 6:
-        #     return -1 * float('inf')
-        # if num_white_Off_grid >= 6:
-        #     return float('inf')
+        if num_black_Off_grid >= 6:
+            return -1 * float('inf')
+        if num_white_Off_grid >= 6:
+            return float('inf')
         return num_white_Off_grid**2 * 20 - num_black_Off_grid**2 * 20
 
     def visualization(self, d):
-
     	def getValue(i):
     		if i < 0:
     			return "W"
