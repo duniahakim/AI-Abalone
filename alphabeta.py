@@ -1,4 +1,5 @@
 import model
+import random
 
 def humanPolicy(game, state):
     while True:
@@ -15,29 +16,32 @@ def AlphaBeta(game, state, side = 1):
         if d == 0:
             if side == game.black:
                 w = {}
-                w['num_black_Off_grid'] = -200
-                w['num_white_Off_grid'] = 200
-                w['num_black_on_edge'] = -20
-                w['num_white_on_edge'] = 20
-                w['black_average_pos'] = -50
-                w['white_average_pos'] = 50
-                w['black_coherence'] = 3
-                w['white_coherence'] = -3
-                w['black_break'] = 10
-                w['white_break'] = -10
+                w['num_black_Off_grid'] = -10.0
+                w['num_white_Off_grid'] = 10.0
+                w['num_black_on_edge'] = -1.0011062940155924
+                w['num_white_on_edge'] =  0.9983901205525182
+                w['black_average_pos'] = 0.9998278853441056
+                w['white_average_pos'] = -1.0002396205464497
+                w['black_coherence'] = 1.0000753562129148
+                w['white_coherence'] = -0.9999787822015421
+                w['black_break'] = -1.0
+                w['white_break'] = 1.0
 
                 return game.eval(state, w)
             else:
                 w = {}
+                w['num_black_Off_grid'] = 100
                 w['num_white_Off_grid'] = -100
-                w['num_black_on_edge'] = 300
-                w['num_white_on_edge'] = -200
+                w['num_black_on_edge'] = 100
+                w['num_white_on_edge'] = -100
                 w['black_average_pos'] = 100
                 w['white_average_pos'] = -100
-                w['black_coherence'] = -3
-                w['white_coherence'] = 3
-                w['black_break'] = -20
-                w['white_break'] = 20
+                w['black_coherence'] = -100
+                w['white_coherence'] = 100
+                w['black_break'] = -100
+                w['white_break'] = 100
+
+
 
                 return game.eval(state, w)
         if game.player(state) == side:
@@ -97,6 +101,7 @@ while not game.isEnd(state):
     action = policy(game, state, side = player)
     state = game.succ(state, action)
     dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
+    print("Number of Rounds: ", numRound)
     print("Current Player: ", player)
     print("Num Black Off Grid: ", num_black_Off_grid)
     print("Num White Off Grid: ", num_white_Off_grid)

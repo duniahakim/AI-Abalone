@@ -76,9 +76,20 @@ class AbaloneGame(object):
         black_average_pos /= float(black_on_grid)
         white_average_pos /= float(white_on_grid)
 
+
+        black_coherence /= float(black_on_grid)
+        white_coherence /= float(white_on_grid)
+
+        black_break /= float(black_on_grid)
+        white_break /= float(white_on_grid)
+
+        if player == self.white:
+            num_black_Off_grid = num_black_Off_grid ** 2
+            num_white_Off_grid = num_white_Off_grid ** 2
+
         f = {
-            "num_black_Off_grid": num_black_Off_grid ** 2,
-            'num_white_Off_grid': num_white_Off_grid ** 2,
+            "num_black_Off_grid": num_black_Off_grid ,
+            'num_white_Off_grid': num_white_Off_grid,
             'num_black_on_edge': num_black_on_edge,
             'num_white_on_edge': num_white_on_edge,
             'black_average_pos': black_average_pos,
