@@ -13,6 +13,8 @@ class AbaloneGame(object):
 
     def features(self, state):
 
+
+
         dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
 
         black_on_grid = 14-num_black_Off_grid
@@ -99,6 +101,7 @@ class AbaloneGame(object):
             'black_break': black_break,
             'white_break': white_break
         }
+
 
         return f
 
