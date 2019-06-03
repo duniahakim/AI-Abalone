@@ -1,4 +1,4 @@
-import modelx2 as model
+import model
 
 class TD:
     def __init__(self, w, eta = 0.01, gamma = 0.2):
@@ -44,17 +44,28 @@ class TD:
 
 
 w = {}
+# w['num_black_Off_grid'] = -10
+# w['num_white_Off_grid'] = 10
+# w['num_black_on_edge'] = -1
+# w['num_white_on_edge'] = 1
+# w['black_average_pos'] = 1
+# w['white_average_pos'] = -1
+# w['black_coherence'] = 1
+# w['white_coherence'] = -1
+# w['black_break'] = -1
+# w['white_break'] = 1
+
 w['num_black_Off_grid'] = -10
-w['num_white_Off_grid'] = 10
+w['num_white_Off_grid'] = 12
 w['num_black_on_edge'] = -1
-w['num_white_on_edge'] = 1
-w['black_average_pos'] = 1
-w['white_average_pos'] = -1
-w['black_coherence'] = 1
+w['num_white_on_edge'] = 2
+w['black_average_pos'] = -1
+w['white_average_pos'] = 2
+w['black_coherence'] = 2
 w['white_coherence'] = -1
-w['black_break'] = -1
-w['white_break'] = 1
-game = model.AbaloneGame(500)
+w['black_break'] = 2
+w['white_break'] = 0
+game = model.AbaloneGame(500, boardSize = 2)
 td = TD(w)
 state = game.startState()
 while not game.isEnd(state):

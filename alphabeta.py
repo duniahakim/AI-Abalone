@@ -2,12 +2,82 @@ import model
 import random
 import time
 import math
+from tkinter import *
+import tkinter as tk
+# import tkMessageBox
 
-def humanPolicy(game, state):
+class getReturn:
+    def __init__(self):
+        self.direction = ""
+        self.value = ""
+
+
+def display(game, pos, rtrn):
+    top = tk.Tk()
+    top.configure(background='#8A4B35')
+
+    def helloCallBack(rtrn, xyz):
+        rtrn.value = xyz
+
+
+    top.geometry("800x400")
+
+    def sel(direction):
+        rtrn.direction = direction
+        for widget in top.winfo_children():
+            widget.destroy()
+        top.destroy()
+
+    var = IntVar()
+    R1 = Radiobutton(top, text="Right", variable=var, command=lambda: sel(game.directions[0]))
+    R1.pack(anchor = W)
+    R2 = Radiobutton(top, text="Right Up", variable=var, command=lambda: sel(game.directions[1]))
+    R2.pack(anchor=W)
+    R3 = Radiobutton(top, text="Left Up", variable=var, command=lambda: sel(game.directions[2]))
+    R3.pack(anchor=W)
+    R4 = Radiobutton(top, text="Left", variable=var, command=lambda: sel(game.directions[3]))
+    R4.pack(anchor=W)
+    R5 = Radiobutton(top, text="Left Down", variable=var, command=lambda: sel(game.directions[4]))
+    R5.pack(anchor=W)
+    R6 = Radiobutton(top, text="Right Down", variable=var, command=lambda: sel(game.directions[5]))
+    R6.pack(anchor=W)
+
+    space = 32
+    maxcoord = game.boardSize
+
+    buttons = {}
+    rows = []
+    for z in range(-maxcoord, maxcoord + 1):
+        row = []
+        for y in range(maxcoord, -maxcoord - 1, -1):
+            x = 0 - z - y
+            if x in range(- maxcoord, maxcoord + 1):
+                row.append((x, y, z))
+                text = "B" if pos[(x,y,z)] == game.black else ("W" if pos[(x,y,z)] == game.white else "")
+                position = (x, y, z)
+                buttons[(x, y, z)] = tk.Button(top, command=lambda p = position: helloCallBack(rtrn, p), text = text)
+                buttons[(x, y, z)].pack()
+        rows.append(row)
+
+    for row in rows:
+        makeup = maxcoord * 2 + 1 - len(row)
+        for i in range(len(row)):
+            x, y, z = row[i]
+            buttons[row[i]].place(bordermode=OUTSIDE, height=space, width=space,
+                                  x=space * 6 + makeup * (space + 2) / 2 + (space + 2) * i,
+                                  y=space * 6 + (space + 2) * z)
+    top.mainloop()
+
+
+def humanPolicy(game, state, side = 1):
     while True:
-        action = input('Input action:')
-        if action in game.actions(state):
-            return action
+        rtrn = getReturn()
+        display(game, state[0], rtrn)
+        marble = rtrn.value
+        direction = rtrn.direction
+        if (marble, direction) in game.actions(state) and game.succ(state, (marble, direction)):
+            return (marble, direction)
+
 
 def normalize(w):
     denominator = 0.0
@@ -35,7 +105,8 @@ def getBlackWeights():
     # w['white_break'] = 1.0
     # return w
 
-    w = {'num_white_Off_grid': 10.860542463144174, 'num_white_on_edge': 3.349860016344766, 'black_break': 0.3253059838957909, 'num_black_Off_grid': -10.0, 'black_coherence': 2.569791494515862, 'white_coherence': 0.5660844024330391, 'white_break': 2.6349892955185066, 'white_average_pos': 2.2646290684316748, 'num_black_on_edge': 1.0886078167943984, 'black_average_pos': 3.5594020173681495}
+    # w = {'num_white_Off_grid': 10.744423819269363, 'num_white_on_edge': 2.4513147103943327, 'black_break': 2.0006247871719154, 'num_black_Off_grid': -10.0, 'black_coherence': 2.1251995600701896, 'white_coherence': -0.26491617233354936, 'white_break': 0.2185629240155823, 'white_average_pos': 5.332047680479706, 'num_black_on_edge': 0.48002682171128863, 'black_average_pos': 1.845973466309996}
+    w = {'num_white_Off_grid': 12.619348456190396, 'num_white_on_edge': 3.1488994429705066, 'black_break': 2.857962452598955, 'num_black_Off_grid': -10.0, 'black_coherence': 2.8637717236477016, 'white_coherence': -0.4740966727316621, 'white_break': 1.042129028946902, 'white_average_pos': 3.918577000282171, 'num_black_on_edge': 0.33348825286889183, 'black_average_pos': 0.5794191606665251}
     w = normalize(w)
     return w
 
@@ -97,7 +168,7 @@ def getOrderedSuccStates(game, state, byIncreasingOrder):
         evaluation = game.eval(succGameState, w)
         possibilities.append((succGameState, evaluation))
     sortedPossibilities =  sorted(possibilities, key=lambda x: x[1], reverse = byIncreasingOrder)
-    return zip(*sortedPossibilities)[0]
+    return list(zip(*sortedPossibilities))[0]
 
 
 
@@ -111,30 +182,32 @@ def AlphaBeta(game, state, side = 1):
         if d == 0:
             if side == game.black:
                 evaluation = game.eval(state, w_black)
-                # print evaluation
                 return evaluation
             else:
                 evaluation = game.eval(state, w_white)
-                # print evaluation
                 return evaluation
         if game.player(state) == side:
             newAlpha = alpha
             choices = []
             orderedSuccStatesForMax = getOrderedSuccStates(game, state, False)
             for succGameState in orderedSuccStatesForMax:
+
             # for action in game.actions(state):
                 # succGameState = game.succ(state, action)
                 # if succGameState is None:
                 #     continue
                 succVal = recurse(game, succGameState, newAlpha, beta, d = d, side = side)
-                if succVal > 0.7:
+                if succVal > 0.5:
                     return succVal
                 if beta is not None and succVal > beta:
                     return succVal
                 if newAlpha is None or succVal > newAlpha:
                     newAlpha = succVal
                 choices.append(succVal)
-            return max(choices)
+
+            sortedChoices = sorted(choices)
+            return random.choice(sortedChoices[-2:])
+            # return max(choices)
         else:
             newBeta = beta
             choices = []
@@ -152,13 +225,15 @@ def AlphaBeta(game, state, side = 1):
                 if newBeta is None or succVal < newBeta:
                     newBeta = succVal
                 choices.append(succVal)
-            return min(choices)
+            sortedChoices = sorted(choices)
+            return random.choice(sortedChoices[:2])
+            # return min(choices)
 
     alpha = None
     beta = None
     choices = []
     d = getDepth(game, state)
-    print "depth: ", d
+    print ("depth: ", d)
     for action in game.actions(state):
         succGameState = game.succ(state, action)
         if succGameState is None:
@@ -170,33 +245,40 @@ def AlphaBeta(game, state, side = 1):
     value, action = max(choices)
     return action
 
-
-game = model.AbaloneGame(100, boardSize = 2)
-policies = {game.black: AlphaBeta, game.white: AlphaBeta}
-state = game.startState()
-dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
-game.visualization(dict_pos)
-
-while not game.isEnd(state):
-    print('='*20)
-    player = game.player(state)
+PercentageOfWinning = 0.0
+numGames = 10
+for _ in range(numGames):
+    print("Num of Won Games So Far: ", PercentageOfWinning)
+    game = model.AbaloneGame(100, boardSize = 3)
+    policies = {game.black: AlphaBeta, game.white: humanPolicy}
+    state = game.startState()
     dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
-    print("Number of Rounds: ", numRound)
-    print("Current Player: ", player)
-    policy = policies[player]
-    start_time = time.time()
-    action = policy(game, state, side = player)
-    state = game.succ(state, action)
-    dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
-    print("Num Black Off Grid: ", num_black_Off_grid)
-    print("Num White Off Grid: ", num_white_Off_grid)
-    print "My program took", time.time() - start_time, "to run"
     game.visualization(dict_pos)
 
-dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
-if (num_black_Off_grid >= game.numToWin):
-    print("White Won!!")
-elif (num_white_Off_grid >= game.numToWin):
-    print("Black Won!!")
-else:
-    print("No One Won!")
+    while not game.isEnd(state):
+        print('='*20)
+        player = game.player(state)
+        dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
+        print("Number of Rounds: ", numRound)
+        print("Current Player: ", player)
+        policy = policies[player]
+        start_time = time.time()
+        action = policy(game, state, side = player)
+        state = game.succ(state, action)
+        dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
+        print("Num Black Off Grid: ", num_black_Off_grid)
+        print("Num White Off Grid: ", num_white_Off_grid)
+        print ("My program took", time.time() - start_time, "to run")
+        game.visualization(dict_pos)
+
+    dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
+    if (num_black_Off_grid >= game.numToWin):
+        print("White Won!!")
+    elif (num_white_Off_grid >= game.numToWin):
+        print("Black Won!!")
+        PercentageOfWinning += 1
+    else:
+        numGames -= 1
+        print("No One Won!")
+PercentageOfWinning /= numGames
+print("Percentage of won games: ", PercentageOfWinning)

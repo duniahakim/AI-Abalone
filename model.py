@@ -103,9 +103,6 @@ class AbaloneGame(object):
         black_break /= float(black_on_grid)
         white_break /= float(white_on_grid)
 
-        if player == self.white:
-            num_black_Off_grid = num_black_Off_grid ** 2
-            num_white_Off_grid = num_white_Off_grid ** 2
 
         f = {
             "num_black_Off_grid": num_black_Off_grid ,
@@ -262,9 +259,9 @@ class AbaloneGame(object):
         while (numOwn != 0):
            if pushOff:
                if player == self.black:
-                   new_num_black_Off_grid += 1
+                   return None
                elif player == self.white:
-                   new_num_white_Off_grid += 1
+                   return None
                pushOff = False
            else:
                newDict[currPos] = player
@@ -301,8 +298,6 @@ class AbaloneGame(object):
         return num_white_Off_grid**2 * 20 - num_black_Off_grid**2 * 20
 
     def visualization(self, d):
-        print(len(d))
-
     	def getValue(i):
     		if i < 0:
     			return "W"
@@ -326,4 +321,4 @@ class AbaloneGame(object):
     		for i in range(makeup):
     			result += " "
     		result += " ".join(row)
-    		print result
+    		print(result)
