@@ -1,7 +1,7 @@
-import model
+import modelx2 as model
 
 class TD:
-    def __init__(self, w, eta = 0.0001, gamma = 0.2):
+    def __init__(self, w, eta = 0.01, gamma = 0.2):
         self.w = w #a dictionary
         self.gamma = gamma
         self.eta = eta
