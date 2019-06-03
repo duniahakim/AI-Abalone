@@ -1,4 +1,4 @@
-import modelx2 as model
+import model
 import random
 import time
 import math
@@ -171,7 +171,7 @@ def AlphaBeta(game, state, side = 1):
     return action
 
 
-game = model.AbaloneGame(100)
+game = model.AbaloneGame(100, boardSize = 2)
 policies = {game.black: AlphaBeta, game.white: AlphaBeta}
 state = game.startState()
 dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
