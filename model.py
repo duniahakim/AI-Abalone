@@ -190,14 +190,12 @@ class AbaloneGame(object):
         return False
 
     def actions(self, state):
-        start_time = time.time()
         possible_actions = []
         dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
         for key, val in dict_pos.items():
             if val == player:
                 for direction in self.directions:
                     possible_actions.append((key, direction))
-        print "Succ took", time.time() - start_time, "to run"
         return possible_actions
 
     def addition(self, marble, direction, scale = 1):
