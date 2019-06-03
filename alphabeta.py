@@ -1,6 +1,7 @@
 import modelx2 as model
 import random
 import time
+import math
 
 def humanPolicy(game, state):
     while True:
@@ -9,12 +10,15 @@ def humanPolicy(game, state):
             return action
 
 def normalize(w):
-    sum = 0
-    for key, val in w.items():
-        sum += val
+    denominator = 0.0
+    for val in w.values():
+        denominator += abs(val) #**2
+    # denominator = math.sqrt(denominator)
 
     for key, val in w.items():
-        w[key]
+        w[key] = val / denominator
+
+    return w
 
 
 def getBlackWeights():
@@ -31,7 +35,9 @@ def getBlackWeights():
     # w['white_break'] = 1.0
     # return w
 
-    return {'num_white_Off_grid': 10.860542463144174, 'num_white_on_edge': 3.349860016344766, 'black_break': 0.3253059838957909, 'num_black_Off_grid': -10.0, 'black_coherence': 2.569791494515862, 'white_coherence': 0.5660844024330391, 'white_break': 2.6349892955185066, 'white_average_pos': 2.2646290684316748, 'num_black_on_edge': 1.0886078167943984, 'black_average_pos': 3.5594020173681495}
+    w = {'num_white_Off_grid': 10.860542463144174, 'num_white_on_edge': 3.349860016344766, 'black_break': 0.3253059838957909, 'num_black_Off_grid': -10.0, 'black_coherence': 2.569791494515862, 'white_coherence': 0.5660844024330391, 'white_break': 2.6349892955185066, 'white_average_pos': 2.2646290684316748, 'num_black_on_edge': 1.0886078167943984, 'black_average_pos': 3.5594020173681495}
+    w = normalize(w)
+    return w
 
 def getWhiteWeights():
     w = {}
@@ -62,6 +68,8 @@ def getDefaultWeights():
     w['white_coherence'] = -0.9999787822015421
     w['black_break'] = -1.0
     w['white_break'] = 1.0
+
+    w = normalize(w)
     return w
 
 def getDepth(game, state):
@@ -119,7 +127,7 @@ def AlphaBeta(game, state, side = 1):
                 # if succGameState is None:
                 #     continue
                 succVal = recurse(game, succGameState, newAlpha, beta, d = d, side = side)
-                if succVal > 5:
+                if succVal > 0.7:
                     return succVal
                 if beta is not None and succVal > beta:
                     return succVal
@@ -137,7 +145,7 @@ def AlphaBeta(game, state, side = 1):
                 # if succGameState is None:
                 #     continue
                 succVal = recurse(game, succGameState, alpha, newBeta, d = d - 1, side = side)
-                if succVal < -5:
+                if succVal < 0.3:
                     return succVal
                 if alpha is not None and succVal < alpha:
                     return succVal
