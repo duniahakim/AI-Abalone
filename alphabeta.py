@@ -189,12 +189,13 @@ def AlphaBeta(game, state, side = 1):
             else:
                 evaluation = game.eval(state, w_white)
                 return evaluation
+
         if game.player(state) == side:
             newAlpha = alpha
             choices = []
             orderedSuccStatesForMax = getOrderedSuccStates(game, state, False)
+            t_end = time.time() + 10
             for succGameState in orderedSuccStatesForMax:
-
             # for action in game.actions(state):
                 # succGameState = game.succ(state, action)
                 # if succGameState is None:
@@ -207,7 +208,8 @@ def AlphaBeta(game, state, side = 1):
                 if newAlpha is None or succVal > newAlpha:
                     newAlpha = succVal
                 choices.append(succVal)
-
+                if time.time() > t_end:
+                    break
             sortedChoices = sorted(choices)
             return random.choice(sortedChoices[-2:])
             # return max(choices)
@@ -215,6 +217,7 @@ def AlphaBeta(game, state, side = 1):
             newBeta = beta
             choices = []
             orderedSuccStatesForMin = getOrderedSuccStates(game, state, True)
+            t_end = time.time() + 2
             for succGameState in orderedSuccStatesForMin:
             # for action in game.actions(state):
                 # succGameState = game.succ(state, action)
@@ -228,6 +231,8 @@ def AlphaBeta(game, state, side = 1):
                 if newBeta is None or succVal < newBeta:
                     newBeta = succVal
                 choices.append(succVal)
+                if time.time() > t_end:
+                    break
             sortedChoices = sorted(choices)
             return random.choice(sortedChoices[:2])
             # return min(choices)
