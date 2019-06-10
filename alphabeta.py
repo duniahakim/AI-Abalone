@@ -112,6 +112,7 @@ def getWhiteWeights():
     # w['white_break'] = 100
     w = {'num_black_Off_grid': 11.622712460338024, 'num_white_Off_grid': -9.476337597924067, 'num_black_on_edge': 1.3089819093532071, 'num_white_on_edge': -0.18712317451057772, 'black_average_pos': 2.0062569948903897, 'white_average_pos': -0.061458291448646035, 'black_coherence': -0.006068921392942536, 'white_coherence': 1.85159872562587, 'black_break': 0.5038203759354308, 'white_break': 2.7659631373543543}
 
+
     # w = {'num_black_Off_grid': 12.0, 'num_white_Off_grid': -9.838700530701312, 'num_black_on_edge': 2.0422668564407758, 'num_white_on_edge': -0.6614323172236901, 'black_average_pos': 2.272661061466584, 'white_average_pos': -0.5059960126085488, 'black_coherence': -0.5666191005121458, 'white_coherence': 2.1590475367578774, 'black_break': 0.19654327711591962, 'white_break': 2.243561057001353}
     w = normalize(w)
     return w
@@ -194,7 +195,6 @@ def AlphaBeta(game, state, side = 1):
             newAlpha = alpha
             choices = []
             orderedSuccStatesForMax = getOrderedSuccStates(game, state, False)
-            t_end = time.time() + 10
             for succGameState in orderedSuccStatesForMax:
             # for action in game.actions(state):
                 # succGameState = game.succ(state, action)
@@ -202,6 +202,80 @@ def AlphaBeta(game, state, side = 1):
                 #     continue
                 succVal = recurse(game, succGameState, newAlpha, beta, d = d, side = side)
                 if succVal > 0.5:
+                    return succVal
+                if beta is not None and succVal > beta:
+                    return succVal
+                if newAlpha is None or succVal > newAlpha:
+                    newAlpha = succVal
+                choices.append(succVal)
+            sortedChoices = sorted(choices)
+            return random.choice(sortedChoices[-2:])
+            # return max(choices)
+        else:
+            newBeta = beta
+            choices = []
+            orderedSuccStatesForMin = getOrderedSuccStates(game, state, True)
+            for succGameState in orderedSuccStatesForMin:
+            # for action in game.actions(state):
+                # succGameState = game.succ(state, action)
+                # if succGameState is None:
+                #     continue
+                succVal = recurse(game, succGameState, alpha, newBeta, d = d - 1, side = side)
+                if succVal < 0.3:
+                    return succVal
+                if alpha is not None and succVal < alpha:
+                    return succVal
+                if newBeta is None or succVal < newBeta:
+                    newBeta = succVal
+                choices.append(succVal)
+            sortedChoices = sorted(choices)
+            return random.choice(sortedChoices[:2])
+            # return min(choices)
+
+    alpha = None
+    beta = None
+    choices = []
+    d = getDepth(game, state)
+    print ("depth: ", d)
+    for action in game.actions(state):
+        succGameState = game.succ(state, action)
+        if succGameState is None:
+            continue
+        succValAction = (recurse(game, succGameState, alpha, beta, d = d, side = side), action)
+        if alpha is None or alpha < succValAction[0]:
+            alpha = succValAction[0]
+        choices.append(succValAction)
+    value, action = max(choices)
+    return action
+
+
+def AlphaBeta_Timed(game, state, side = 1):
+
+    def recurse(game, state, alpha, beta, d = 1, side = 1):
+        if game.isEnd(state):
+            return side * game.utility(state)
+        w_black = getBlackWeights()
+        w_white = getWhiteWeights()
+        if d == 0:
+            if side == game.black:
+                evaluation = game.eval(state, w_black)
+                return evaluation
+            else:
+                evaluation = game.eval(state, w_white)
+                return evaluation
+
+        if game.player(state) == side:
+            newAlpha = alpha
+            choices = []
+            orderedSuccStatesForMax = getOrderedSuccStates(game, state, False)
+            t_end = time.time() + 0.1
+            for succGameState in orderedSuccStatesForMax:
+            # for action in game.actions(state):
+                # succGameState = game.succ(state, action)
+                # if succGameState is None:
+                #     continue
+                succVal = recurse(game, succGameState, newAlpha, beta, d = d, side = side)
+                if succVal > 1:
                     return succVal
                 if beta is not None and succVal > beta:
                     return succVal
@@ -217,7 +291,7 @@ def AlphaBeta(game, state, side = 1):
             newBeta = beta
             choices = []
             orderedSuccStatesForMin = getOrderedSuccStates(game, state, True)
-            t_end = time.time() + 2
+            t_end = time.time() + 0.1
             for succGameState in orderedSuccStatesForMin:
             # for action in game.actions(state):
                 # succGameState = game.succ(state, action)
@@ -253,14 +327,15 @@ def AlphaBeta(game, state, side = 1):
     value, action = max(choices)
     return action
 
+
 gamesWon = 0
 gamesLost = 0
 gamesDraw = 0
-numGames = 1
+numGames = 10
 averageNumMoves = 0.0
 for _ in range(numGames):
-    game = model.AbaloneGame(100, boardSize = 3)
-    policies = {game.black: AlphaBeta, game.white: humanPolicy}
+    game = model.AbaloneGame(100, boardSize = 2)
+    policies = {game.black: AlphaBeta_Timed, game.white: AlphaBeta}
     state = game.startState()
     dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
     game.visualization(dict_pos)
@@ -292,6 +367,9 @@ for _ in range(numGames):
     else:
         gamesDraw += 1
         print("No One Won!")
+
+
+
 
 averageNumMoves /= numGames
 print("Number of won games: ", gamesWon)
