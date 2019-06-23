@@ -4,7 +4,7 @@ import time
 import math
 from tkinter import *
 import tkinter as tk
-# import tkMessageBox
+
 
 class getReturn:
     def __init__(self):
@@ -69,6 +69,7 @@ def display(game, pos, rtrn):
     top.mainloop()
 
 
+# policy that takes input from user
 def humanPolicy(game, state, side = 1):
     while True:
         rtrn = getReturn()
@@ -93,27 +94,11 @@ def normalize(w):
 
 def getBlackWeights():
     w = {'num_black_Off_grid': -10.0, 'num_white_Off_grid': 12.0, 'num_black_on_edge': -1.4220548966813016, 'num_white_on_edge': 1.0906714795992967, 'black_average_pos': -1.4156226804858798, 'white_average_pos': 1.3894678700263614, 'black_coherence': 1.7941345394011496, 'white_coherence': -0.8928301228450835, 'black_break': 1.849963784226139, 'white_break': -0.15003621577402654}
-
-    # w = {'num_white_Off_grid': 12.619348456190396, 'num_white_on_edge': 3.1488994429705066, 'black_break': 2.857962452598955, 'num_black_Off_grid': -10.0, 'black_coherence': 2.8637717236477016, 'white_coherence': -0.4740966727316621, 'white_break': 1.042129028946902, 'white_average_pos': 3.918577000282171, 'num_black_on_edge': 0.33348825286889183, 'black_average_pos': 0.5794191606665251}
     w = normalize(w)
     return w
 
 def getWhiteWeights():
-    # w = {}
-    # w['num_black_Off_grid'] = 100
-    # w['num_white_Off_grid'] = -100
-    # w['num_black_on_edge'] = 100
-    # w['num_white_on_edge'] = -100
-    # w['black_average_pos'] = 100
-    # w['white_average_pos'] = -100
-    # w['black_coherence'] = -100
-    # w['white_coherence'] = 100
-    # w['black_break'] = -100
-    # w['white_break'] = 100
     w = {'num_black_Off_grid': 11.622712460338024, 'num_white_Off_grid': -9.476337597924067, 'num_black_on_edge': 1.3089819093532071, 'num_white_on_edge': -0.18712317451057772, 'black_average_pos': 2.0062569948903897, 'white_average_pos': -0.061458291448646035, 'black_coherence': -0.006068921392942536, 'white_coherence': 1.85159872562587, 'black_break': 0.5038203759354308, 'white_break': 2.7659631373543543}
-
-
-    # w = {'num_black_Off_grid': 12.0, 'num_white_Off_grid': -9.838700530701312, 'num_black_on_edge': 2.0422668564407758, 'num_white_on_edge': -0.6614323172236901, 'black_average_pos': 2.272661061466584, 'white_average_pos': -0.5059960126085488, 'black_coherence': -0.5666191005121458, 'white_coherence': 2.1590475367578774, 'black_break': 0.19654327711591962, 'white_break': 2.243561057001353}
     w = normalize(w)
     return w
 
@@ -161,6 +146,7 @@ def getOrderedSuccStates(game, state, byIncreasingOrder):
     sortedPossibilities =  sorted(possibilities, key=lambda x: x[1], reverse = byIncreasingOrder)
     return list(zip(*sortedPossibilities))[0]
 
+# baseline agent
 def HeuristicAgent(game, state, side = 1):
     choices = []
     for action in game.actions(state):
@@ -176,6 +162,7 @@ def HeuristicAgent(game, state, side = 1):
     value, action = max(choices)
     return action
 
+# our final agent
 def AlphaBeta(game, state, side = 1):
 
     def recurse(game, state, alpha, beta, d = 1, side = 1):
@@ -270,10 +257,6 @@ def AlphaBeta_Timed(game, state, side = 1):
             orderedSuccStatesForMax = getOrderedSuccStates(game, state, False)
             t_end = time.time() + 0.1
             for succGameState in orderedSuccStatesForMax:
-            # for action in game.actions(state):
-                # succGameState = game.succ(state, action)
-                # if succGameState is None:
-                #     continue
                 succVal = recurse(game, succGameState, newAlpha, beta, d = d, side = side)
                 if succVal > 1:
                     return succVal
@@ -335,7 +318,9 @@ numGames = 10
 averageNumMoves = 0.0
 for _ in range(numGames):
     game = model.AbaloneGame(100, boardSize = 2)
-    policies = {game.black: AlphaBeta_Timed, game.white: AlphaBeta}
+
+    # change the values to control who is the white and black player.
+    policies = {game.black: AlphaBeta, game.white: humanPolicy}
     state = game.startState()
     dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
     game.visualization(dict_pos)
@@ -353,7 +338,6 @@ for _ in range(numGames):
         dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
         print("Num Black Off Grid: ", num_black_Off_grid)
         print("Num White Off Grid: ", num_white_Off_grid)
-        # print ("My program took", time.time() - start_time, "to run")
         game.visualization(dict_pos)
 
     dict_pos, num_black_Off_grid, num_white_Off_grid, player, numRound = state
