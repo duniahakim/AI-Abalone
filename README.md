@@ -2,7 +2,7 @@
 
 Our CS 221 project which is about developing an Abalone game-playing agent.
 
-Explanation of the files:
+This repository includes:
 * Paper.pdf => the final paper for the project
 * abaloneGUI => a GUI to play and see the progress of the game
 * alphabeta.py => includes an implementation of minimax with AlphaBeta pruning and all of the other additions to make the seearch faster and more efficient. This is the program that you will want to run to play the game.
